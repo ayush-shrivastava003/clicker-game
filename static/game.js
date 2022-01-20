@@ -4,32 +4,42 @@ class Item {
         this.rate = rate;
         this.intervalId = null;
         this.gameRef = gameRef;
+        this.stopReapeat = true;
     }
 
     start() {
-        this.intervalId = setInterval(this.rate, this.gameRef.click);
+        this.stopReapeat = false
+
+        let nextClick = () => {
+            if (this.stopReapeat) {return}
+            this.gameRef.click()
+            setTimeout(nextClick, 1000)
+        }
+
+        nextClick()
     }
 
     stop() {
-        clearInterval(this.intervalId);
-        this.intervalId = null;
+        this.stopReapeat = true
     }
 }
 class Game {
-    constuctor(moneyText) {
+    constructor(moneyText) {
         this.moneyText = moneyText;
         this.money = 0;
-        this.items = {};
+        this.items = {'cookie': []};
     }
 
     click() {
-        console.log(this.money, "is money")
-        this.money = this.money + 1;
-        this.moneyText.innerHTML = this.money
+        this.money++;
+        this.moneyText.textContent = this.money
     }
 
     addItem(itemName) {
-        this.items[itemName].push(new Item(itemName, 0.5))
+        let i = new Item(itemName, 1, this)
+        this.items[itemName].push(i)
+        i.start()
+        return i
     }
 
     reveal() {
